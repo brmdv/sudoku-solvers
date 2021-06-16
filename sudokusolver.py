@@ -3,6 +3,13 @@ import numpy as np
 
 class Sudoku:
     def __init__(self, arr: np.array = np.zeros((9, 9)), possibilities=None):
+        """Create a new Sudoku instance, by providing a 9 by 9 array that holds
+        the starting position. Empty fields should be set to 0.
+        
+        :param arr: Input sudoku, 9×9 array-like object.
+        :param possibilities: Mainly used to clone a sudoku directly.
+        """
+
         self.possibilities = (
             np.array(
                 [
@@ -20,7 +27,7 @@ class Sudoku:
                     self.setval(j, i, arr[i, j])
 
     def setval(self, x, y, num):
-
+        """Set a value at (x, y)."""
         # remove option from all bounded numbers
         self.possibilities[y, :, num - 1] = 0
         self.possibilities[:, x, num - 1] = 0
@@ -33,7 +40,8 @@ class Sudoku:
             [True if i == num - 1 else False for i in range(9)]
         )
 
-    def update(self, depth=0):
+    def update(self):
+        """UPdate internal possibility array, following the sudoku rules."""
         while True:
             precount = np.sum(self.possibility_count())
             for y, x in np.argwhere(self.possibility_count() == 1):
@@ -44,8 +52,9 @@ class Sudoku:
 
             if precount == np.sum(self.possibility_count()):
                 break
-                
+
     def __str__(self) -> str:
+        """Nicely print the current state of the sudoku."""
         out = ""
         for row in self.possibilities:
             for col in row:
@@ -57,26 +66,32 @@ class Sudoku:
         return out
 
     def possibility_count(self):
+        """Returns number of options at each field."""
         return self.possibilities.sum(axis=2)
 
     def count_filled(self):
+        """Total number of filled in fields. """
         return np.sum(self.possibility_count() == 1)
 
     def is_finished(self):
+        """Returns wheter the sudoku is solved yet."""
         return np.all(self.possibility_count() == 1)
 
     def is_valid(self):
+        """Checks if sudoku is still following the rules (and thus solveable)."""
         return 0 not in self.possibility_count()
 
     def get_possibilities(self, x, y):
+        """Returns the possible numbers at (x,y) in the sudoku."""
         return np.arange(1, 10)[self.possibilities[y, x]]
 
     def copy(self):
         return Sudoku(possibilities=self.possibilities.copy())
 
 
-
 def solve(sudoku, depth=0):
+    """Recursively solve a given sudoku until it is solved."""
+
     # escape if solved
     if sudoku.is_finished():
         return sudoku
@@ -97,7 +112,7 @@ def solve(sudoku, depth=0):
                     return solution
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     test_sudoku = Sudoku(
         np.array(
             [
